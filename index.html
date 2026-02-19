@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+</head>
+    <body>
+        <!-- Set up elements for DOM manipulation-->
+
+
+
+        <script>
+            // define visual height and width
+            var width = 500;
+            var height = 500;
+
+            // load in seasons data
+            d3.csv("data/seasons.csv")
+                .row(function(error, d){
+                    if (error) {
+                        return console.warn(error);
+                    }
+                    
+                    return {
+                        player: d.Player,
+                        year: d.Year, 
+                        position: d.POS, 
+                        club: d.club, 
+                        GP: d.GP,
+                        GS: d.GS, 
+                        minutes: d.MINS,
+                        goals: d.G,
+                        assists: d.A,
+                        g90: d["G/90min"],
+                        a90: d["A/90min"],
+                        base_salary: d.base_salary,
+                        guaranteed_compensation: d.guaranteed_compensation,
+                        goals_and_assists: d["G+A"]
+                    };
+                })
+                .get(function(data){
+                    console.log(data);
+                });
+
+            // define svg
+            var svg = d3.select("body")
+                        .append("svg")
+                        .attr("width", width)
+                        .attr("height", height)
+        </script>
+    </body>
+</html>
