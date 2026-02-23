@@ -11,42 +11,90 @@
 
         <script>
             // define visual height and width
-            var width = 500;
-            var height = 500;
+            var width = 1200;
+            var height = 800;
 
             // load in seasons data
-            d3.csv("data/seasons.csv")
-                .row(function(error, d){
-                    if (error) {
-                        return console.warn(error);
-                    }
-                    
+            d3.csv("data/seasons.csv",
+                function(d) {
                     return {
                         player: d.Player,
-                        year: d.Year, 
-                        position: d.POS, 
-                        club: d.club, 
-                        GP: d.GP,
-                        GS: d.GS, 
-                        minutes: d.MINS,
-                        goals: d.G,
-                        assists: d.A,
-                        g90: d["G/90min"],
-                        a90: d["A/90min"],
-                        base_salary: d.base_salary,
-                        guaranteed_compensation: d.guaranteed_compensation,
-                        goals_and_assists: d["G+A"]
+                        year: +d.Year,
+                        position: d.POS,
+                        club: d.club,
+                        GP: +d.GP,
+                        GS: +d.GS,
+                        minutes: +d.MINS,
+                        goals: +d.G,
+                        assists: +d.A,
+                        g90: +d["G/90min"],
+                        a90: +d["A/90min"],
+                        base_salary: +d.base_salary,
+                        guaranteed_compensation: +d.guaranteed_compensation,
+                        goals_and_assists: +d["G+A"]
                     };
-                })
-                .get(function(data){
+                },
+                function(error, data) {
+                    if (error) throw error;
+
                     console.log(data);
+                    createChart(data);   // Call chart function
+                }
+            );
+
+
+            // function to create chart
+            function createChart(data) {
+
+                var margin = {top: 40, right: 40, bottom: 60, left: 80};
+                var innerWidth = width - margin.left - margin.right;
+                var innerHeight = height - margin.top - margin.bottom;
+
+                var svg = d3.select("body")
+                    .append("svg")
+                    .attr("class", "d3-chart")
+                    .attr("width", width)
+                    .attr("height", height);
+
+                var g = svg.append("g")
+                    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+                        
+                // create scales
+                var xScale = d3.scaleLinear()
+                    .domain([0, d3.max(data, function(d) { return d.guaranteed_compensation; })])
+                    .range([0, innerWidth]);
+
+                var yScale = d3.scaleLinear()
+                    .domain([0, d3.max(data, function(d) { return d.goals_and_assists; })])
+                    .range([innerHeight, 0]);
+                
+                // establish scatter plot dots
+                g.selectAll("circle")
+                .data(data)
+                .enter()
+                .append("circle")
+                .attr("cx", function(d) { return xScale(d.guaranteed_compensation); })
+                .attr("cy", function(d) { return yScale(d.goals_and_assists); })
+                .attr("r", 4)
+                .attr("opacity", 0.7)
+                .attr("fill", function(d) {
+                    if (d.position === "F") return "red";
+                    if (d.position === "M") return "blue";
+                    return "green";
                 });
 
-            // define svg
-            var svg = d3.select("body")
-                        .append("svg")
-                        .attr("width", width)
-                        .attr("height", height)
+                // finally: add axes
+                    var xAxis = d3.axisBottom(xScale);
+                    var yAxis = d3.axisLeft(yScale);
+
+                    g.append("g")
+                        .attr("transform", "translate(0," + innerHeight + ")")
+                        .call(xAxis);
+
+                    g.append("g")
+                        .call(yAxis);
+            }
+
         </script>
     </body>
 </html>

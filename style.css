@@ -7,3 +7,9 @@ svg text {
     font: 10px sans-serif;
     text-anchor: end;
 }
+
+.d3-chart {
+    align-self:center;
+    align-items: center;
+    justify-items: center;
+}
